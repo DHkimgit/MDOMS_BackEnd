@@ -1,2 +1,6 @@
 /code-server-font-patch
-/app/server/database.py
+.env
+/app/__pycache__
+/app/server/__pycache__
+/app/server/models/__pycache__
+/app/server/routes/__pycache__
