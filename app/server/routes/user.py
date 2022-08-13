@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-from app.server.database import (
+from app.server.database.user import (
     add_user,
     retrieve_users,
     retrieve_user,
@@ -28,7 +28,7 @@ async def add_student_data(user: UserSchema = Body(...)):
     return ResponseModel(new_user, "User added successfully.")
 
 @router.get("/", response_description="Users retrieved")
-async def get_users():
+async def ge t_users():
     users = await retrieve_users()
     if users:
         return ResponseModel(users, "users data retrieved successfully")

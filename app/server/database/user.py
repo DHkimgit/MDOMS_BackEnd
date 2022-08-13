@@ -1,4 +1,3 @@
-from pymongo import MongoClient
 from bson.objectid import ObjectId
 from decouple import config
 import motor.motor_asyncio
