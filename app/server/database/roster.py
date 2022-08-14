@@ -11,8 +11,8 @@ roster_collection = db.get_collection("roster")
 # helpers
 def roster_helper(roster) -> dict:
     return {
-        "id": str(roster["_id"]),
-        "ServiceNumber": roster["ServiceNumber"],
+        # "id": str(roster["_id"]),
+        # "ServiceNumber": roster["ServiceNumber"],
         "Rosters": {
             "RosterId": roster["Rosters"]["RosterId"],
             "RosterName": roster["Rosters"]["RosterName"]
@@ -46,10 +46,13 @@ async def add_roster3(id: str, roster_id: str, roster_data: dict):
         return False
 
 async def find_roster(id: str, roster_id: str) -> dict:
-    roster = await roster_collection.find_one(
-        {
-                "_id": ObjectId(id),
-                "Rosters": {"RosterId": roster_id}   
-        }
+    rosterss = await roster_collection.find_one(
+        {"_id": ObjectId(id), "Rosters": {"$elemMatch": {"RosterId": roster_id}}},
+        {"_id": 0, "ServiceNumber": 0, "Rosters" : {"RosterName": 0, "RosterId": 0}}
     )
-    return roster_helper(roster)
+    roater2 = roster_collection.aggregate(
+        {"$match": {"_id": ObjectId(id), "Rosters": {"$elemMatch": {"RosterId": roster_id}}}},
+        {"$project":{"Rosters" : {"RosterName": 0, "RosterId": 0, "Roster": 1}}}
+    )
+    print(rosterss)
+    return roster_helper(roater2)

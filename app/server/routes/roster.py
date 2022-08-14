@@ -20,13 +20,13 @@ from app.server.models.roster import (
 
 router = APIRouter()
 
-@router.post("/", response_description="roster data added into the database")
+@router.post("/", response_description="data added into the database")
 async def add_roster_data(roster: UserWithRosterSchema = Body(...)):
     rosters = jsonable_encoder(roster)
     new_roster = await add_roster(rosters)
     return ResponseModel(new_roster, "rosters added successfully.")
 
-@router.put("/{id}", response_description="roster data added into the database")
+@router.put("/{id}", response_description="roster added into the database")
 async def add_other_roster_data(id: str, req: UpdateRosterSchema = Body(...)):
     update_member_data = jsonable_encoder(req)
     updated_roster = await add_roster2(id, update_member_data)
@@ -56,7 +56,7 @@ async def add_other_roster_data(id: str, roster_id: str, req: UpdateRosterMember
         "There was an error updating the user data.",
     )
 
-@router.get("/{id}/memberlist/{roster_id}", response_description="get member")
+@router.get("/{id}/{roster_id}", response_description="get member")
 async def find_roster_member(id: str, roster_id: str):
     roster = await find_roster(id, roster_id)
     if roster:
