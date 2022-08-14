@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 from app.server.routes.user import router as UserRouter
 from app.server.routes.roster import router as RosterRouter
-
 app = FastAPI()
 
 app.include_router(UserRouter, tags=["User"], prefix="/user")

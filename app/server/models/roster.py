@@ -20,6 +20,36 @@ class RosterSchema(BaseModel):
     class Config():
         orm_mode = True
 
+class UpdateRosterSchema(BaseModel):
+    RosterId: Optional[str]
+    RosterName: Optional[str]
+    class Config():
+        schema_extra = {
+            "example": {
+                "RosterId": "01",
+                "RosterName": "무전실 근무",
+            }
+        }
+
+class UpdateRosterMemberSchema(BaseModel):
+    sequence: Optional[int]
+    name: Optional[str]
+    rank: Optional[str]
+    AffiliatedUnit: Optional[str]
+    state: Optional[str]
+
+    class Config():
+        schema_extra = {
+            "example": {
+                "sequence": "2",
+                "name": "이정현",
+                "rank": "상병",
+                "AffiliatedUnit": "통신중대",
+                "state": "영내",
+            }
+        }
+
+
 class UserWithRosterSchema(BaseModel):
     ServiceNumber: str = Field(...)
     Rosters: List[RosterSchema]
