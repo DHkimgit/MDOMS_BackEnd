@@ -1,21 +1,12 @@
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-
 class RosterMemberSchema(BaseModel):
     sequence: int = Field(...)
     name: str = Field(...)
     rank: str = Field(...)
     AffiliatedUnit: str = Field(...)
     state: str = Field(...)
-
-    class Config():
-        orm_mode = True
-
-class RosterSchema(BaseModel):
-    RosterId: str = Field(...)
-    RosterName: str = Field(...)
-    Roster: List[RosterMemberSchema]
 
     class Config():
         orm_mode = True
@@ -49,10 +40,11 @@ class UpdateRosterMemberSchema(BaseModel):
             }
         }
 
-
-class UserWithRosterSchema(BaseModel):
+class RosterSchema(BaseModel):
     ServiceNumber: str = Field(...)
-    Rosters: List[RosterSchema]
+    RosterId: str = Field(...)
+    RosterName: str = Field(...)
+    RosterMember: List[RosterMemberSchema]
     class Config():
         orm_mode = True
 

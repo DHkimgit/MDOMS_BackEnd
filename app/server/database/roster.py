@@ -38,8 +38,8 @@ async def add_roster3(id: str, roster_id: str, roster_data: dict):
     roster = await roster_collection.find_one({"_id": ObjectId(id)})
     if roster:
         updated_roster = await roster_collection.update_one(
-            {"_id": ObjectId(id), "Rosters": {"$elemMatch": {"RosterId": roster_id}}},
-            {"$push" : {"Rosters.$.Roster" : roster_data}}
+            {"_id": ObjectId(id), "RosterId": roster_id},
+            {"$push" : {"RosterMember" : roster_data}}
         )
         if updated_roster:
             return True
