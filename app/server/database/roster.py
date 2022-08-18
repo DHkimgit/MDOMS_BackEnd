@@ -45,6 +45,17 @@ async def add_roster3(id: str, roster_id: str, roster_data: dict):
             return True
         return False
 
+async def addRosterMemberByServiceNumber(ServiceNumber: str, roster_id: str, roster_data: dict):
+    rosters = await roster_collection.find_one({"ServiceNumber": ServiceNumber})
+    if rosters:
+        update_member = await roster_collection.update_one(
+            {"ServiceNumber": ServiceNumber, "RosterId": roster_id},
+            {"$push" : {"RosterMember" : roster_data}}
+        )
+        if updated_roster:
+            return True
+        return False
+
 async def find_roster(id: str, roster_id: str) -> dict:
     rosterss = await roster_collection.find_one(
         {"_id": ObjectId(id), "Rosters": {"$elemMatch": {"RosterId": roster_id}}},
