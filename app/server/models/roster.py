@@ -44,7 +44,7 @@ class RosterSchema(BaseModel):
     ServiceNumber: str = Field(...)
     RosterId: str = Field(...)
     RosterName: str = Field(...)
-    RosterMember: List[RosterMemberSchema]
+
     class Config():
         orm_mode = True
 

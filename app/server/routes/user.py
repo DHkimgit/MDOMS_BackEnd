@@ -9,7 +9,7 @@ from app.server.database.user import (
     retrieve_users,
     retrieve_user,
     update_user,
-    delete_user
+    delete_user,
 )
 from app.server.models.user import (
     ErrorResponseModel,

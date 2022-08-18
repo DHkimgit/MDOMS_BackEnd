@@ -19,6 +19,16 @@ def roster_helper(roster) -> dict:
         }
     }
 
+def member_helper(member) -> dict:
+    return {
+        "sequence": member["sequence"],
+        "name": member["name"],
+        "rank": member["rank"],
+        "AffiliatedUnit": member["AffiliatedUnit"],
+        "state": member["state"],
+    }
+
+
 async def add_roster(roster_data: dict) -> dict:
     roster = await roster_collection.insert_one(roster_data)
     new_roster = await roster_collection.find_one({"_id": roster.inserted_id})
@@ -46,13 +56,13 @@ async def add_roster3(id: str, roster_id: str, roster_data: dict):
         return False
 
 async def addRosterMemberByServiceNumber(ServiceNumber: str, roster_id: str, roster_data: dict):
-    rosters = await roster_collection.find_one({"ServiceNumber": ServiceNumber})
-    if rosters:
+    roster = await roster_collection.find_one({"ServiceNumber": ServiceNumber})
+    if roster:
         update_member = await roster_collection.update_one(
             {"ServiceNumber": ServiceNumber, "RosterId": roster_id},
             {"$push" : {"RosterMember" : roster_data}}
         )
-        if updated_roster:
+        if update_member:
             return True
         return False
 
@@ -67,3 +77,12 @@ async def find_roster(id: str, roster_id: str) -> dict:
     )
     print(rosterss)
     return roster_helper(roater2)
+
+async def retrieve_roster_member(servicenumber: str, roster_id: str) -> dict:
+    member = await roster_collection.find_one(
+        {"ServiceNumber": servicenumber, "RosterId": roster_id},
+        {"_id": False, "ServiceNumber": False, "RosterId": False, "RosterName": False}
+    )
+    print(member)
+    if member:
+        return member
