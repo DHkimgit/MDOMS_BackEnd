@@ -37,6 +37,10 @@ class UpdateUserModel(BaseModel):
             }
         }
 
+class TokenSchema(BaseModel):
+    access_token: str
+    refresh_token: str
+
 def ResponseModel(data, message):
     return {
         "data": [data],

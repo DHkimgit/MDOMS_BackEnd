@@ -3,14 +3,10 @@ from decouple import config
 import motor.motor_asyncio
 
 MONGO_DETAILS = config("MONGO_DETAILS")
-# db = client['MDOMS']
-# user = db['Users']
-# client = MongoClient(MONGO_DETAILS)
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 db = client.MDOMS
 user_collection = db.get_collection("user")
-# helpers
 
 def user_helper(user) -> dict:
     return {
@@ -22,12 +18,12 @@ def user_helper(user) -> dict:
         "AffiliatedUnit": user["AffiliatedUnit"]
     }
 
-# Retrieve all users present in the database
-# async def retrieve_users():
-#     users = []
-#     for user in db.user.find():
-#         users.append(user_helper(user))
-#     return users
+async def check_out_existing_user(ServiceNumber: str) -> bool:
+    user = await user_collection.find_one({"ServiceNumber": ServiceNumber})
+    if user:
+        return True
+    else:
+        return False
 
 async def retrieve_users():
     users = []
@@ -38,6 +34,12 @@ async def retrieve_users():
 # Retrieve a student with a matching ID
 async def retrieve_user(id: str) -> dict:
     user = await user_collection.find_one({"_id": ObjectId(id)})
+    if user:
+        return user_helper(user)
+
+# Retrieve a student with a matching servicenumber
+async def retrieve_user_servicenumber(servicenumber: str) -> dict:
+    user = await user_collection.find_one({"ServiceNumber": ServiceNumber})
     if user:
         return user_helper(user)
 

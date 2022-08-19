@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from passlib.context import CryptContext
 
@@ -10,6 +10,7 @@ from app.server.database.user import (
     retrieve_user,
     update_user,
     delete_user,
+    check_out_existing_user
 )
 from app.server.models.user import (
     ErrorResponseModel,
@@ -18,12 +19,23 @@ from app.server.models.user import (
     UpdateUserModel,
 )
 
+from app.server.auth.utils import (
+    get_hashed_password,
+    verify_password,
+)
+
 router = APIRouter()
 
 @router.post("/", response_description="User data added into the database")
 async def add_student_data(user: UserSchema = Body(...)):
     users = jsonable_encoder(user)
-    users["Password"] = pwd_context.hash(users["Password"])
+    check_user = await check_out_existing_user(users["ServiceNumber"])
+    if check_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this ServiceNumber already exist"
+        )
+    users["Password"] = get_hashed_password(users["Password"])
     new_user = await add_user(users)
     return ResponseModel(new_user, "User added successfully.")
 
