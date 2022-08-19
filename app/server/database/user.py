@@ -39,7 +39,7 @@ async def retrieve_user(id: str) -> dict:
 
 # Retrieve a student with a matching servicenumber
 async def retrieve_user_servicenumber(servicenumber: str) -> dict:
-    user = await user_collection.find_one({"ServiceNumber": ServiceNumber})
+    user = await user_collection.find_one({"ServiceNumber": servicenumber})
     if user:
         return user_helper(user)
 

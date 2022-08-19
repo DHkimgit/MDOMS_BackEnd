@@ -1,9 +1,8 @@
 from fastapi import FastAPI, status, HTTPException, Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
-from app.schemas import UserOut, UserAuth, TokenSchema
-from replit import db
-from app.server.models import (
+# from app.schemas import UserOut, UserAuth, TokenSchema
+from app.server.models.user import (
     TokenSchema
 )
 from app.server.auth.utils import (
@@ -20,7 +19,7 @@ from app.server.database.user import (
 
 router = APIRouter()
 # https://www.freecodecamp.org/news/how-to-add-jwt-authentication-in-fastapi/
-@app.post('/login', summary="Create access and refresh tokens for user", response_model=TokenSchema)
+@router.post('/login', summary="Create access and refresh tokens for user", response_model=TokenSchema)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     usercheck = await check_out_existing_user(form_data.username)
     if usercheck is False:
