@@ -17,7 +17,8 @@ from app.server.auth.utils import (
 from app.server.database.user import (
     check_out_existing_user,
     retrieve_user_servicenumber,
-    get_current_active_user
+    get_current_active_user,
+    get_current_user
 )
 
 router = APIRouter()
@@ -48,3 +49,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.get("/users/me/")
 async def read_users_me(current_user: UserSchema = Depends(get_current_active_user)):
     return current_user
+
+@router.get("/me/{token}")
+async def get_user(token: str):
+    user = await get_current_user(token)
+    return user
