@@ -3,7 +3,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 # from app.schemas import UserOut, UserAuth, TokenSchema
 from app.server.models.user import (
-    TokenSchema
+    TokenSchema,
+    UserSchema,
+    UserResponseSchema
 )
 from app.server.auth.utils import (
     get_hashed_password,
@@ -14,7 +16,8 @@ from app.server.auth.utils import (
 
 from app.server.database.user import (
     check_out_existing_user,
-    retrieve_user_servicenumber
+    retrieve_user_servicenumber,
+    get_current_active_user
 )
 
 router = APIRouter()
@@ -41,3 +44,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         "access_token": create_access_token(user['ServiceNumber']),
         "refresh_token": create_refresh_token(user['ServiceNumber']),
     }
+
+@router.get("/users/me/")
+async def read_users_me(current_user: UserSchema = Depends(get_current_active_user)):
+    return current_user

@@ -17,6 +17,7 @@ from app.server.models.user import (
     ResponseModel,
     UserSchema,
     UpdateUserModel,
+    UserResponseSchema,
 )
 
 from app.server.auth.utils import (
@@ -53,7 +54,7 @@ async def get_user_data(id):
         return ResponseModel(user, "User data retrieved successfully")
     return ErrorResponseModel("An error occurred.", 404, "User doesn't exist.")
 
-@router.put("/{id}")
+@router.put("/{id}", response_model=UserSchema)
 async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
     req = {k: v for k, v in req.dict().items() if v is not None}
     updated_user = await update_user(id, req)
