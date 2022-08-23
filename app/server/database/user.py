@@ -30,7 +30,8 @@ def user_helper(user) -> dict:
         "ServiceNumber": user["ServiceNumber"],
         "Email": user["Email"],
         "Password": user["Password"],
-        "AffiliatedUnit": user["AffiliatedUnit"]
+        "AffiliatedUnit": user["AffiliatedUnit"],
+        "IsOfficer": user["IsOfficer"]
     }
 
 async def check_out_existing_user(ServiceNumber: str) -> bool:

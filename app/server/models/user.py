@@ -7,6 +7,7 @@ class UserSchema(BaseModel):
     Email: EmailStr = Field(...)
     Password: str = Field(...)
     AffiliatedUnit: str = Field(...)
+    IsOfficer: bool = Field(...)
 
     class config():
         schema_extra = {
@@ -16,6 +17,7 @@ class UserSchema(BaseModel):
                 "Email": "8dnjfekf@gmail.com",
                 "Password": "8dnjfekf!",
                 "AffiliatedUnit": "Ministy Of Military",
+                "IsOfficer": True,
             }
         }
 
@@ -24,6 +26,7 @@ class UserResponseSchema(BaseModel):
     ServiceNumber: str = Field(...)
     Email: EmailStr = Field(...)
     AffiliatedUnit: str = Field(...)
+    IsOfficer: bool = Field(...)
 
     class config():
         schema_extra = {
@@ -33,6 +36,7 @@ class UserResponseSchema(BaseModel):
                 "Email": "8dnjfekf@gmail.com",
                 "Password": "8dnjfekf!",
                 "AffiliatedUnit": "Ministy Of Military",
+                "IsOfficer": True,
             }
         }
 
@@ -42,6 +46,7 @@ class UpdateUserModel(BaseModel):
     Email: Optional[EmailStr]
     Password: Optional[str]
     AffiliatedUnit: Optional[str]
+    IsOfficer: Optional[bool]
 
     class config():
         schema_extra = {
@@ -51,6 +56,7 @@ class UpdateUserModel(BaseModel):
                 "Email": "8dnjfekf@gmail.com",
                 "Password": "8dnjfekf!",
                 "AffiliatedUnit": "Ministy Of Military",
+                "IsOfficer": True,
             }
         }
 
