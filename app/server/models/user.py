@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 
 class UserSchema(BaseModel):
     UserName: str = Field(...)
@@ -20,6 +20,11 @@ class UserSchema(BaseModel):
                 "IsOfficer": True,
             }
         }
+    @validator('ServiceNumber')
+    def servicenumber_must_have_hyphen(cls, v):
+        if '-' not in v:
+            raise ValueError('servicenumber must contain a hyphen')
+        return v.title()
 
 class UserResponseSchema(BaseModel):
     UserName: str = Field(...)
