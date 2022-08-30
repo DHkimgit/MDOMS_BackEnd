@@ -1,6 +1,8 @@
 from bson.objectid import ObjectId
 from decouple import config
 import motor.motor_asyncio
+from typing import List
+import json
 
 MONGO_DETAILS = config("MONGO_DETAILS")
 
@@ -27,7 +29,6 @@ def member_helper(member) -> dict:
         "AffiliatedUnit": member["AffiliatedUnit"],
         "state": member["state"],
     }
-
 
 async def add_roster(roster_data: dict) -> dict:
     roster = await roster_collection.insert_one(roster_data)
@@ -83,6 +84,5 @@ async def retrieve_roster_member(servicenumber: str, roster_id: str) -> dict:
         {"ServiceNumber": servicenumber, "RosterId": roster_id},
         {"_id": False, "ServiceNumber": False, "RosterId": False, "RosterName": False}
     )
-    print(member)
     if member:
         return member

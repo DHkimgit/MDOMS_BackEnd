@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.server.routes.user import router as UserRouter
 from app.server.routes.roster import router as RosterRouter
 from app.server.routes.login import router as LoginRouter
+from app.server.routes.logictest import router as LogicTestRouter
 app = FastAPI()
 
 origins = [
@@ -21,6 +22,7 @@ app.add_middleware(
 app.include_router(UserRouter, tags=["User"], prefix="/user")
 app.include_router(RosterRouter, tags=["Roster"], prefix="/roster")
 app.include_router(LoginRouter, tags=["Login"], prefix="/auth")
+app.include_router(LogicTestRouter, tags=["Test"], prefix="/test")
 
 # python app/main.py
 # https://testdriven.io/blog/fastapi-mongo/
