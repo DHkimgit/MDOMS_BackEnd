@@ -25,6 +25,6 @@ async def get_roster_member_to_list(servicenumber: str, roster_id: str) -> List:
         name = member_list[i]['name']
         result.append(f'{rank} {name}')
     print(result)
-
+    
     if member:
         return result
