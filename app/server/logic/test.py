@@ -41,7 +41,7 @@ def MakeDailyScheduleGroup_Backward(array_time : List[int], array_roster = List[
         if len(end_time) != 4:
             end_time = end_time.zfill(4)
         result.append([f'{start_time[0]}{start_time[1]}:{start_time[2]}{start_time[3]} - {end_time[0]}{end_time[1]}:{end_time[2]}{end_time[3]}'])
-    array_roster.reverse()
+ 
     for i in range(len(result)):
         if returned_pointer > len(array_roster) - 1:
             returned_pointer = 0
@@ -93,11 +93,12 @@ def MakeWeekelySchedule_returnlist_Foward(array_time : List[int], array_roster =
     return monday_list, tuesday_list, wednesday_list, thursday_list, friday_list
 
 def MakeWeekelySchedule_returnlist_Backward(array_time : List[int], array_roster = List[str], monday_date = str):
-    monday_list, monday_ponter, tuesday_date = MakeDailyScheduleGroup_Backward(array_time, array_roster, 0, monday_date)
-    tuesday_list, tuesday_ponter, wednesday_date = MakeDailyScheduleGroup_Backward(array_time, array_roster, monday_ponter, tuesday_date)
-    wednesday_list, wednesday_ponter, thursday_date = MakeDailyScheduleGroup_Backward(array_time, array_roster, tuesday_ponter, wednesday_date)
-    thursday_list, thursday_ponter, friday_date = MakeDailyScheduleGroup_Backward(array_time, array_roster, wednesday_ponter, thursday_date)
-    friday_list, friday_ponter, saterday_date = MakeDailyScheduleGroup_Backward(array_time, array_roster, thursday_ponter, friday_date)
+
+    monday_list, monday_ponter, tuesday_date = MakeDailyScheduleGroup_Foward(array_time, array_roster, 0, monday_date)
+    tuesday_list, tuesday_ponter, wednesday_date = MakeDailyScheduleGroup_Foward(array_time, array_roster, monday_ponter, tuesday_date)
+    wednesday_list, wednesday_ponter, thursday_date = MakeDailyScheduleGroup_Foward(array_time, array_roster, tuesday_ponter, wednesday_date)
+    thursday_list, thursday_ponter, friday_date = MakeDailyScheduleGroup_Foward(array_time, array_roster, wednesday_ponter, thursday_date)
+    friday_list, friday_ponter, saterday_date = MakeDailyScheduleGroup_Foward(array_time, array_roster, thursday_ponter, friday_date)
 
     return monday_list, tuesday_list, wednesday_list, thursday_list, friday_list
 
@@ -105,13 +106,14 @@ def MakeWeekelySchedule_returnGroups(array_time : List[int], array_roster = List
     # array_time = [[600, 800], [800, 1000, 1200, 1400, 1600, 1800], [1800, 2000], [2000, 2200]]
     # direction = [true, false, true, false]
     # array_roster = 
+    back_roster = list(reversed(array_roster))
     tmp = []
     for i in range(len(array_time)):
         if direction[i] == False:
             monday_list, tuesday_list, wednesday_list, thursday_list, friday_list = MakeWeekelySchedule_returnlist_Foward(array_time[i], array_roster, monday_date)
             tmp.append([monday_list, tuesday_list, wednesday_list, thursday_list, friday_list])
         elif direction[i] == True:
-            monday_list, tuesday_list, wednesday_list, thursday_list, friday_list = MakeWeekelySchedule_returnlist_Backward(array_time[i], array_roster, monday_date)
+            monday_list, tuesday_list, wednesday_list, thursday_list, friday_list = MakeWeekelySchedule_returnlist_Backward(array_time[i], back_roster, monday_date)
             tmp.append([monday_list, tuesday_list, wednesday_list, thursday_list, friday_list])
     
     return tmp
@@ -140,4 +142,3 @@ def MakeWeekelySchedule(Groups : List):
             weekly_roster["Friday"].append(Groups[i][4][j])
 
     return weekly_roster
-
