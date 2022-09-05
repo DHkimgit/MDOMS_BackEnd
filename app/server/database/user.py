@@ -47,6 +47,26 @@ async def retrieve_users():
         users.append(user_helper(user))
     return users
 
+async def retrieve_users_forgrid():
+    users = []
+    result = []
+    async for user in user_collection.find():
+        users.append(user_helper(user))
+    for i in range(len(users)):
+        iddata = users[i]['id']
+        username = users[i]['UserName']
+        servicenumber = users[i]['ServiceNumber']
+        email = users[i]['Email']
+        affiliatedunit = users[i]['AffiliatedUnit']
+        result.append({
+            'id': iddata,
+            'username': username,
+            'servicenumber': servicenumber,
+            'email': email,
+            'affiliatedunit': affiliatedunit
+        })
+    return result
+
 # Retrieve a student with a matching ID
 async def retrieve_user(id: str) -> dict:
     user = await user_collection.find_one({"_id": ObjectId(id)})

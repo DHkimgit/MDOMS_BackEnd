@@ -10,7 +10,8 @@ from app.server.database.user import (
     retrieve_user,
     update_user,
     delete_user,
-    check_out_existing_user
+    check_out_existing_user,
+    retrieve_users_forgrid
 )
 from app.server.models.user import (
     ErrorResponseModel,
@@ -44,7 +45,14 @@ async def add_student_data(user: UserSchema = Body(...)):
 async def get_users():
     users = await retrieve_users()
     if users:
-        return ResponseModel(users, "users data retrieved successfully")
+        return users
+    return ResponseModel(users, "Empty list returned")
+
+@router.get("/grid", response_description="Users retrieved_helpme")
+async def get_users():
+    users = await retrieve_users_forgrid()
+    if users:
+        return users
     return ResponseModel(users, "Empty list returned")
 
 @router.get("/{id}", response_description="User data retrieved")
