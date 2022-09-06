@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from pydantic import BaseModel, EmailStr, Field, validator
 
 class UserSchema(BaseModel):
@@ -20,11 +20,31 @@ class UserSchema(BaseModel):
                 "IsOfficer": True,
             }
         }
-    @validator('ServiceNumber')
-    def servicenumber_must_have_hyphen(cls, v):
-        if '-' not in v:
-            raise ValueError('servicenumber must contain a hyphen')
-        return v.title()
+    # @validator('ServiceNumber')
+    # def servicenumber_must_have_hyphen(cls, v):
+    #     if '-' not in v:
+    #         raise ValueError('servicenumber must contain a hyphen')
+    #     return v.title()
+
+class UserPatchSchema(BaseModel):
+    UserName: Union[str, None] = None
+    ServiceNumber: Union[str, None] = None
+    Email: Union[EmailStr, None] = None 
+    Password: Union[str, None] = None
+    AffiliatedUnit: Union[str, None] = None
+    IsOfficer: Union[str, None] = None
+
+    class config():
+        schema_extra = {
+            "example": {
+                "UserName": "John Doe",
+                "ServiceNumber": "22-76458458",
+                "Email": "8dnjfekf@gmail.com",
+                "Password": "8dnjfekf!",
+                "AffiliatedUnit": "Ministy Of Military",
+                "IsOfficer": True,
+            }
+        }
 
 class UserResponseSchema(BaseModel):
     UserName: str = Field(...)

@@ -11,7 +11,8 @@ from app.server.database.user import (
     update_user,
     delete_user,
     check_out_existing_user,
-    retrieve_users_forgrid
+    retrieve_users_forgrid,
+    retrieve_user_nohelper
 )
 from app.server.models.user import (
     ErrorResponseModel,
@@ -19,11 +20,12 @@ from app.server.models.user import (
     UserSchema,
     UpdateUserModel,
     UserResponseSchema,
+    UserPatchSchema
 )
 
 from app.server.auth.utils import (
     get_hashed_password,
-    verify_password,
+    verify_password
 )
 
 router = APIRouter()
@@ -66,6 +68,25 @@ async def get_user_data(id):
 async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
     req = {k: v for k, v in req.dict().items() if v is not None}
     updated_user = await update_user(id, req)
+    if updated_user:
+        return ResponseModel(
+            "User with ID: {} name update is successful".format(id),
+            "User name updated successfully",
+        )
+    return ErrorResponseModel(
+        "An error occurred",
+        404,
+        "There was an error updating the user data.",
+    )
+
+@router.patch("/{id}", response_model=UserPatchSchema)
+async def patch_user_data(id: str, item: UserPatchSchema):
+    stored_item_data = await retrieve_user_nohelper(id)
+    stored_item_model = UserSchema(**stored_item_data)
+    update_data = item.dict(exclude_unset=True)
+    updated_item = stored_item_model.copy(update=update_data)
+    updated_item_json = jsonable_encoder(updated_item)
+    updated_user = await update_user(id, updated_item_json)
     if updated_user:
         return ResponseModel(
             "User with ID: {} name update is successful".format(id),

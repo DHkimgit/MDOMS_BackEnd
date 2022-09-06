@@ -87,6 +87,13 @@ async def retrieve_user_servicenumber_nohelper(servicenumber: str) -> dict:
     if user:
         return user
 
+async def retrieve_user_nohelper(id: str) -> dict:
+    user = await user_collection.find_one(
+        {"_id": ObjectId(id)}
+        )
+    if user:
+        return user
+
 # Add a new user into to the database
 async def add_user(user_data: dict) -> dict:
     user = await user_collection.insert_one(user_data)

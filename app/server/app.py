@@ -7,13 +7,12 @@ from app.server.routes.logictest import router as LogicTestRouter
 app = FastAPI()
 
 origins = [
-    "https://mdoms-front.run.goorm.io",
-    "https://mdoms-backend.run.goorm.io",
+    '*'
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
