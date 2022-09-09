@@ -143,6 +143,12 @@ def MakeWeekelySchedule(Groups : List):
 
     return weekly_roster
 
+def wrap_database(data: dict):
+    result = []
+    for i in range(len(data["Monday"][0])):
+        result.append()
+
+
 # 사수/부사수 순번 통합
 def make_couple_arratroster(array_roster_main = List[str], array_roster_sub = List[str]):
     result = []

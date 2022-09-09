@@ -33,13 +33,13 @@ router = APIRouter()
 @router.post("/", response_description="User data added into the database")
 async def add_student_data(user: UserSchema = Body(...)):
     users = jsonable_encoder(user)
-    check_user = await check_out_existing_user(users["ServiceNumber"])
+    check_user = await check_out_existing_user(users["servicenumber"])
     if check_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this ServiceNumber already exist"
         )
-    users["Password"] = get_hashed_password(users["Password"])
+    users["password"] = get_hashed_password(users["password"])
     new_user = await add_user(users)
     return ResponseModel(new_user, "User added successfully.")
 

@@ -26,16 +26,17 @@ class TokenData(BaseModel):
 def user_helper(user) -> dict:
     return {
         "id": str(user["_id"]),
-        "UserName": user["UserName"],
-        "ServiceNumber": user["ServiceNumber"],
-        "Email": user["Email"],
-        "Password": user["Password"],
-        "AffiliatedUnit": user["AffiliatedUnit"],
-        "IsOfficer": user["IsOfficer"]
+        "name": user["name"],
+        "rank": user["rank"],
+        "servicenumber": user["servicenumber"],
+        "email": user["email"],
+        "password": user["password"],
+        "unit": user["unit"],
+        "isofficer": user["isofficer"]
     }
 
 async def check_out_existing_user(ServiceNumber: str) -> bool:
-    user = await user_collection.find_one({"ServiceNumber": ServiceNumber})
+    user = await user_collection.find_one({"servicenumber": ServiceNumber})
     if user:
         return True
     else:
@@ -75,14 +76,14 @@ async def retrieve_user(id: str) -> dict:
 
 # Retrieve a student with a matching servicenumber
 async def retrieve_user_servicenumber(servicenumber: str) -> dict:
-    user = await user_collection.find_one({"ServiceNumber": servicenumber})
+    user = await user_collection.find_one({"servicenumber": servicenumber})
     if user:
         return user_helper(user)
 
 async def retrieve_user_servicenumber_nohelper(servicenumber: str) -> dict:
     user = await user_collection.find_one(
-        {"ServiceNumber": servicenumber},
-        {"_id": 0, "Password": 0}
+        {"servicenumber": servicenumber},
+        {"_id": 0, "password": 0}
         )
     if user:
         return user
@@ -139,8 +140,29 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception 
     print(user)
     return user
+
+async def get_current_user_servicenumber(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        servicenumber: str = payload.get("sub")
+        if servicenumber is None:
+            raise credentials_exception
+        token_data = TokenData(username=servicenumber)
+    except JWTError:
+        raise credentials_exception
+    user = await retrieve_user_servicenumber_nohelper(servicenumber)
+    userservidenumber = user['servicenumber']
+    return userservidenumber
  
 async def get_current_active_user(current_user: UserResponseSchema = Depends(get_current_user)):
     if current_user is None:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user 
+
+async def get_current_active_user_servicenumber(servicenumber: str = Depends(get_current_user_servicenumber)):
+    return servicenumber

@@ -33,7 +33,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
 
     user = await retrieve_user_servicenumber(form_data.username)
-    hashed_pass = user['Password']
+    hashed_pass = user['password']
 
     if not verify_password(form_data.password, hashed_pass):
         raise HTTPException(
@@ -42,8 +42,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
     
     return {
-        "access_token": create_access_token(user['ServiceNumber']),
-        "refresh_token": create_refresh_token(user['ServiceNumber']),
+        "access_token": create_access_token(user['servicenumber']),
+        "refresh_token": create_refresh_token(user['servicenumber']),
     }
 
 @router.get("/users/me/")

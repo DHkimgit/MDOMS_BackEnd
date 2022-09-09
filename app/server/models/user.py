@@ -2,22 +2,24 @@ from typing import Optional, Union
 from pydantic import BaseModel, EmailStr, Field, validator
 
 class UserSchema(BaseModel):
-    UserName: str = Field(...)
-    ServiceNumber: str = Field(...)
-    Email: EmailStr = Field(...)
-    Password: str = Field(...)
-    AffiliatedUnit: str = Field(...)
-    IsOfficer: bool = Field(...)
+    name: str = Field(...)
+    rank: str = Field(...)
+    servicenumber: str = Field(...)
+    email: EmailStr = Field(...)
+    password: str = Field(...)
+    unit: str = Field(...)
+    isofficer: bool = Field(...)
 
     class config():
         schema_extra = {
             "example": {
-                "UserName": "John Doe",
-                "ServiceNumber": "22-76458458",
-                "Email": "8dnjfekf@gmail.com",
-                "Password": "8dnjfekf!",
-                "AffiliatedUnit": "Ministy Of Military",
-                "IsOfficer": True,
+                "name": "John Doe",
+                "rank": "일병",
+                "servicenumber": "22-76458458",
+                "email": "8dnjfekf@gmail.com",
+                "password": "8dnjfekf!",
+                "unit": "Ministy Of Military",
+                "isofficer": True,
             }
         }
     # @validator('ServiceNumber')
@@ -27,12 +29,13 @@ class UserSchema(BaseModel):
     #     return v.title()
 
 class UserPatchSchema(BaseModel):
-    UserName: Union[str, None] = None
-    ServiceNumber: Union[str, None] = None
-    Email: Union[EmailStr, None] = None 
-    Password: Union[str, None] = None
-    AffiliatedUnit: Union[str, None] = None
-    IsOfficer: Union[str, None] = None
+    name: Union[str, None] = None
+    rank: Union[str, None] = None
+    servicenumber: Union[str, None] = None
+    email: Union[EmailStr, None] = None 
+    password: Union[str, None] = None
+    unit: Union[str, None] = None
+    isofficer: Union[str, None] = None
 
     class config():
         schema_extra = {
@@ -47,11 +50,12 @@ class UserPatchSchema(BaseModel):
         }
 
 class UserResponseSchema(BaseModel):
-    UserName: str = Field(...)
-    ServiceNumber: str = Field(...)
-    Email: EmailStr = Field(...)
-    AffiliatedUnit: str = Field(...)
-    IsOfficer: bool = Field(...)
+    name: str = Field(...)
+    rank: str = Field(...)
+    servicenumber: str = Field(...)
+    email: EmailStr = Field(...)
+    unit: str = Field(...)
+    isofficer: bool = Field(...)
 
     class config():
         schema_extra = {
@@ -66,12 +70,13 @@ class UserResponseSchema(BaseModel):
         }
 
 class UpdateUserModel(BaseModel):
-    UserName: Optional[str]
-    ServiceNumber: Optional[str]
-    Email: Optional[EmailStr]
-    Password: Optional[str]
-    AffiliatedUnit: Optional[str]
-    IsOfficer: Optional[bool]
+    name: Optional[str]
+    rank: Optional[str]
+    servicenumber: Optional[str]
+    email: Optional[EmailStr]
+    password: Optional[str]
+    unit: Optional[str]
+    isofficer: Optional[bool]
 
     class config():
         schema_extra = {
