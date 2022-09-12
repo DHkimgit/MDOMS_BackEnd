@@ -17,6 +17,7 @@ JWT_SECRET_KEY = config("JWT_SECRET_KEY")
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 db = client.MDOMS
 user_collection = db.get_collection("user")
+unit_collection = db.get_collection("unit")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -41,6 +42,11 @@ async def check_out_existing_user(ServiceNumber: str) -> bool:
         return True
     else:
         return False
+
+async def check_out_unit(unit_id: str) -> str:
+    unit = await unit_collection.find_one({"_id": ObjectId(unit_id)})
+    unit_name = unit["unit_name"]
+    return unit_name
 
 async def retrieve_users():
     users = []
@@ -74,6 +80,11 @@ async def retrieve_user(id: str) -> dict:
     if user:
         return user_helper(user)
 
+async def retrieve_user_name(id: str) -> str:
+    user = await user_collection.find_one({"_id": ObjectId(id)})
+    if user:
+        return user['name']
+
 # Retrieve a student with a matching servicenumber
 async def retrieve_user_servicenumber(servicenumber: str) -> dict:
     user = await user_collection.find_one({"servicenumber": servicenumber})
@@ -83,7 +94,7 @@ async def retrieve_user_servicenumber(servicenumber: str) -> dict:
 async def retrieve_user_servicenumber_nohelper(servicenumber: str) -> dict:
     user = await user_collection.find_one(
         {"servicenumber": servicenumber},
-        {"_id": 0, "password": 0}
+        {"password": 0}
         )
     if user:
         return user
@@ -156,9 +167,28 @@ async def get_current_user_servicenumber(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     user = await retrieve_user_servicenumber_nohelper(servicenumber)
+    print(user['_id'])
     userservidenumber = user['servicenumber']
     return userservidenumber
  
+async def get_current_user_id(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        servicenumber: str = payload.get("sub")
+        if servicenumber is None:
+            raise credentials_exception
+        token_data = TokenData(username=servicenumber)
+    except JWTError:
+        raise credentials_exception
+    user = await retrieve_user_servicenumber_nohelper(servicenumber)
+    user_id = user['_id']
+    return user_id
+
 async def get_current_active_user(current_user: UserResponseSchema = Depends(get_current_user)):
     if current_user is None:
         raise HTTPException(status_code=400, detail="Inactive user")
@@ -166,3 +196,6 @@ async def get_current_active_user(current_user: UserResponseSchema = Depends(get
 
 async def get_current_active_user_servicenumber(servicenumber: str = Depends(get_current_user_servicenumber)):
     return servicenumber
+
+async def get_current_active_user_id(ids: str = Depends(get_current_user_id)):
+    return ids

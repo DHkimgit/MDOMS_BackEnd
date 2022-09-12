@@ -17,15 +17,11 @@ from app.server.models.unit import (
 )
 router = APIRouter()
 
+# Return Evert Unit
 @router.get("/", response_description="Units retrieved")
 async def get_all_unit():
     result = await get_all_units()
     return result
-
-    # if units:
-    #     return units
-    # else:
-    #     return "Empty list returned"
 
 @router.post("/", response_description="Unit data successfully added to database")
 async def post_unit_data(unit_data: UnitSchema = Body(...), servicenumber: str = Depends(get_current_active_user_servicenumber)):

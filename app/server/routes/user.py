@@ -12,7 +12,8 @@ from app.server.database.user import (
     delete_user,
     check_out_existing_user,
     retrieve_users_forgrid,
-    retrieve_user_nohelper
+    retrieve_user_nohelper,
+    check_out_unit
 )
 from app.server.models.user import (
     ErrorResponseModel,
@@ -40,6 +41,7 @@ async def add_student_data(user: UserSchema = Body(...)):
             detail="User with this ServiceNumber already exist"
         )
     users["password"] = get_hashed_password(users["password"])
+    users["unit"]["unit_name"] = await check_out_unit(users["unit"]["unit_id"])
     new_user = await add_user(users)
     return ResponseModel(new_user, "User added successfully.")
 

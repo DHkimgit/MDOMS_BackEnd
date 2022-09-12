@@ -1,13 +1,33 @@
 from typing import Optional, Union
 from pydantic import BaseModel, EmailStr, Field, validator
 
+class Unit(BaseModel):
+    unit_id: str = Field(...)
+    class config():
+        schema_extra = {
+            "example": {
+                "unit_id": "631f0b5101819b3e885d81b7"
+            }
+        }
+
+class UnitResponse(BaseModel):
+    unit_id: str = Field(...)
+    unit_name: str = Field(...)
+    class config():
+        schema_extra = {
+            "example": {
+                "unit_id": "631f0b5101819b3e885d81b7",
+                "unit_name": "17사단 507여단"
+            }
+        }
+
 class UserSchema(BaseModel):
     name: str = Field(...)
     rank: str = Field(...)
     servicenumber: str = Field(...)
     email: EmailStr = Field(...)
     password: str = Field(...)
-    unit: str = Field(...)
+    unit: Unit = Field(...)
     isofficer: bool = Field(...)
 
     class config():
@@ -34,7 +54,7 @@ class UserPatchSchema(BaseModel):
     servicenumber: Union[str, None] = None
     email: Union[EmailStr, None] = None 
     password: Union[str, None] = None
-    unit: Union[str, None] = None
+    unit: Union[Unit, None] = None
     isofficer: Union[str, None] = None
 
     class config():
@@ -54,7 +74,7 @@ class UserResponseSchema(BaseModel):
     rank: str = Field(...)
     servicenumber: str = Field(...)
     email: EmailStr = Field(...)
-    unit: str = Field(...)
+    unit: Unit = Field(...)
     isofficer: bool = Field(...)
 
     class config():
@@ -75,7 +95,7 @@ class UpdateUserModel(BaseModel):
     servicenumber: Optional[str]
     email: Optional[EmailStr]
     password: Optional[str]
-    unit: Optional[str]
+    unit: Optional[dict]
     isofficer: Optional[bool]
 
     class config():
