@@ -5,6 +5,7 @@ from app.server.routes.roster import router as RosterRouter
 from app.server.routes.login import router as LoginRouter
 from app.server.routes.logictest import router as LogicTestRouter
 from app.server.routes.roster_information import router as RosterInformationRouter
+from app.server.routes.unit import router as UnitRouter
 app = FastAPI()
 
 origins = [
@@ -24,6 +25,7 @@ app.include_router(RosterRouter, tags=["Roster"], prefix="/roster")
 app.include_router(RosterInformationRouter, tags=["RosterInformation"])
 app.include_router(LoginRouter, tags=["Login"], prefix="/auth")
 app.include_router(LogicTestRouter, tags=["Test"], prefix="/test")
+app.include_router(UnitRouter, tags=["Unit"], prefix="/unit")
 
 # python app/main.py
 # https://testdriven.io/blog/fastapi-mongo/
