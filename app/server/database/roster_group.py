@@ -16,11 +16,61 @@ def add_roster_member_group_response_model(data) -> dict:
         "create_user_name" : data["create_user_name"],
         "roster_group_name": data["roster_group_name"],
         "create_date": data["create_date"],
+    }
+
+def return_helper(data) -> dict:
+    for i in range(len(data["user_edit_permission"])):
+        str_id = str(data["user_edit_permission"][i])
+        data["user_edit_permission"][i] = str_id
+    return {    
+        "_id": str(data["_id"]),
+        "create_user_id": str(data["create_user_id"]),
+        "create_user_name" : data["create_user_name"],
+        "roster_group_name": data["roster_group_name"],
+        "create_date": data["create_date"],
         "user_edit_permission": data["user_edit_permission"]
     }
 
-async def add_roster_member_group(data: dict) -> dict:
+async def get_roster_member_groups():
+    groups = []
+    t = roster_group_collection.find()
+    async for group in roster_group_collection.find():
+        for i in range(len(group["user_edit_permission"])):
+            t = str(group["user_edit_permission"][i])
+            group["user_edit_permission"][i] = t
+        groups.append(
+            {
+                "_id": str(group["_id"]),
+                "roster_group_name": group["roster_group_name"],
+                "create_user_id": str(group["create_user_id"]),
+                "create_user_name": group["create_user_name"],
+                "create_date": group["create_date"],
+                "user_edit_permission": group["user_edit_permission"]
+            }
+        )
+    return groups
+
+async def get_roster_member_group(id: str):
+    roster_member_group = await roster_group_collection.find_one({"_id": ObjectId(id)})
+    return return_helper(roster_member_group)
+
+async def add_roster_member_group(data: dict) -> str:
     roster_member_group = await roster_group_collection.insert_one(data)
-    result = await 
-    print(roster_member_group)
-    return add_roster_member_group_response_model(roster_member_group)
+    if roster_member_group:
+        return "succesfully added"
+    else:
+        return "ERROR ㅠㅠ"
+
+async def add_permission(id: str, append_id: str):
+    roster_member_group = await roster_group_collection.find_one({"_id": ObjectId(id)})
+    if roster_member_group:
+        updata_permission = await roster_group_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$push" : {"user_edit_permission" : ObjectId(append_id)}}
+        )
+        result = await roster_group_collection.find_one({"_id": ObjectId(id)})
+        print(result)
+        return add_roster_member_group_response_model(result)
+    else:
+        return "Error ㅠㅠ"
+

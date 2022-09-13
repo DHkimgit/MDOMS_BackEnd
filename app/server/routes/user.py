@@ -47,7 +47,6 @@ async def add_student_data(user: UserSchema = Body(...)):
 
 @router.get("/", response_description="Users retrieved")
 async def get_users():
-    print("fuck")
     users = await retrieve_users()
     if users:
         return users
