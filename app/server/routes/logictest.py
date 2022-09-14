@@ -6,7 +6,8 @@ from app.server.database.logictest import (
 )
 
 from app.server.database.logic import (
-    get_time_data
+    get_time_data,
+    get_time_group
 )
 
 from app.server.models.roster import (
@@ -30,4 +31,5 @@ router = APIRouter()
 @router.get("/{roster_id}/{isWeekend}")
 async def get_time_array(roster_id: str, isWeekend: bool):
     time_list = await get_time_data(roster_id, isWeekend)
-    return time_list
+    group_list = await get_time_group(roster_id, isWeekend)
+    return time_list, group_list

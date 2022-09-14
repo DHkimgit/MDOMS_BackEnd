@@ -44,7 +44,7 @@ async def put_permission_id(id: str, appended_id: str):
     result = await add_permission(id, appended_id)
     return result
 
-@router.put('/{group_id}/{appended_user_id}')
-async def put_permission_id(group_id: str, appended_user_id: str):
-    result = await add_group_member(group_id, appended_user_id)
+@router.put('/{group_id}/{member_servicenumber}')
+async def put_permission_id(group_id: str, member_servicenumber: str):
+    result = await add_group_member(group_id, member_servicenumber)
     return result

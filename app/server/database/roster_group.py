@@ -79,7 +79,7 @@ async def add_group_member(id: str, append_service_number: str):
     if roster_member_group:
         append_member = await user_collection.find_one({"servicenumber": append_service_number})
         if append_member:
-            NameWithRank = append_member['rank'] + append_member['name']
+            NameWithRank = append_member['rank'] + " " + append_member['name']
             user_id = append_member['_id']
             update_member = await roster_group_collection.update_one(
                 {"_id": ObjectId(id)},

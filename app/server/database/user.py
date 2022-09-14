@@ -25,7 +25,8 @@ class TokenData(BaseModel):
     username: Union[str, None] = None
 
 def user_helper(user) -> dict:
-    return {
+    if 'create_roster_id' in user:
+        return {
         "id": str(user["_id"]),
         "name": user["name"],
         "rank": user["rank"],
@@ -33,8 +34,20 @@ def user_helper(user) -> dict:
         "email": user["email"],
         "password": user["password"],
         "unit": user["unit"],
-        "isofficer": user["isofficer"]
+        "isofficer": user["isofficer"],
+        "create_roster_id": user["create_roster_id"]
     }
+    else:
+        return {
+            "id": str(user["_id"]),
+            "name": user["name"],
+            "rank": user["rank"],
+            "servicenumber": user["servicenumber"],
+            "email": user["email"],
+            "password": user["password"],
+            "unit": user["unit"],
+            "isofficer": user["isofficer"]
+        }
 
 async def check_out_existing_user(ServiceNumber: str) -> bool:
     user = await user_collection.find_one({"servicenumber": ServiceNumber})

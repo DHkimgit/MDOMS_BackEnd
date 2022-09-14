@@ -22,7 +22,7 @@ router = APIRouter()
 async def post_new_roster_information(roster_information: RosterInformationInputSchema = Body(...), servicenumber: str = Depends(get_current_active_user_servicenumber)):
     appended_data = jsonable_encoder(roster_information)
     appended_data['roster_create_user_servicenumber'] = servicenumber
-    database_append_response = await add_roster_information(appended_data)
+    database_append_response = await add_roster_information(appended_data, servicenumber)
     return ResponseModel(database_append_response, f"{servicenumber} append roster information data. ID is {appended_data['roster_id']}")
 
 @router.put('/rosterinformation/{roster_id}/timegroup')

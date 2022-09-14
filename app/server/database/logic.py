@@ -19,7 +19,6 @@ async def get_time_data(roster_id: str, isWeekend:bool):
             if 'weekend' in data['roster_time_group'][i]['apply_group']:
                 for j in range(len(data['roster_time_group'][i]['time'])):
                     result.append(data['roster_time_group'][i]['time'][j])
-        result.sort()
         return result
     else:
         data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
@@ -27,5 +26,26 @@ async def get_time_data(roster_id: str, isWeekend:bool):
             if 'weekday' in data['roster_time_group'][i]['apply_group']:
                 for j in range(len(data['roster_time_group'][i]['time'])):
                     result.append(data['roster_time_group'][i]['time'][j])
-        result.sort()
+        return result
+
+async def get_time_group(roster_id: str, isWeekend:bool):
+    time_group = []
+    result = []
+    if isWeekend:
+        data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
+        for i in range(len(data['roster_time_group'])):
+            if 'weekend' in data['roster_time_group'][i]['apply_group']:
+                time_group.append(data['roster_time_group'][i]['time'])
+        time_group.sort()
+        for j in range(len(time_group)):
+            result.append(len(time_group[j]))
+        return result
+    else:
+        data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
+        for i in range(len(data['roster_time_group'])):
+            if 'weekday' in data['roster_time_group'][i]['apply_group']:
+                time_group.append(data['roster_time_group'][i]['time'])
+        time_group.sort()
+        for j in range(len(time_group)):
+            result.append(len(time_group[j]))
         return result

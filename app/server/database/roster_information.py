@@ -9,7 +9,7 @@ MONGO_DETAILS = config("MONGO_DETAILS")
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 db = client.MDOMS
 roster_collection = db.get_collection("roster_information")
-
+user_collection = db.get_collection("user")
 def add_roster_information_response_model(data) -> dict:
     return {
         "roster_id" : data["roster_id"],
@@ -18,8 +18,12 @@ def add_roster_information_response_model(data) -> dict:
         "roster_work_rule" : data["roster_work_rule"]
     }
 
-async def add_roster_information(data : dict) -> dict:
+async def add_roster_information(data : dict, service_number: str) -> dict:
     roster_data = await roster_collection.insert_one(data)
+    update_user_information = await user_collection.update_one(
+        {"servicenumber": service_number},
+        {"$push" : {"create_roster_id": data['roster_id']}}
+    )
     inserted_data = await roster_collection.find_one({"roster_id": data["roster_id"]})
     return add_roster_information_response_model(inserted_data)
 
