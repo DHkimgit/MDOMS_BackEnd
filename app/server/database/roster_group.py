@@ -9,7 +9,7 @@ MONGO_DETAILS = config("MONGO_DETAILS")
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 db = client.MDOMS
 roster_group_collection = db.get_collection("roster_group")
-
+user_collection = db.get_collection("user")
 def add_roster_member_group_response_model(data) -> dict:
     return {
         "create_user_id": str(data["create_user_id"]),
@@ -74,3 +74,20 @@ async def add_permission(id: str, append_id: str):
     else:
         return "Error ㅠㅠ"
 
+async def add_group_member(id: str, append_service_number: str):
+    roster_member_group = await roster_group_collection.find_one({"_id": ObjectId(id)})
+    if roster_member_group:
+        append_member = await user_collection.find_one({"servicenumber": append_service_number})
+        if append_member:
+            NameWithRank = append_member['rank'] + append_member['name']
+            user_id = append_member['_id']
+            update_member = await roster_group_collection.update_one(
+                {"_id": ObjectId(id)},
+                {"$push" : {"member" : {
+                    "user_id": user_id,
+                    "service_number": append_service_number,
+                    "name" : NameWithRank,
+                    }}}
+            )
+        else:
+            return "No matching Servicenumber detected"

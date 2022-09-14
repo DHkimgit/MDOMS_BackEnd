@@ -27,7 +27,8 @@ async def post_new_roster_information(roster_information: RosterInformationInput
 
 @router.put('/rosterinformation/{roster_id}/timegroup')
 async def post_roster_timegroup(roster_id, timegropup_data: RosterInformationTimeGroupSchema = Body(...), servicenumber: str = Depends(get_current_active_user_servicenumber)):
-    if find_roster_information(roster_id) == False:
+    find = await find_roster_information(roster_id)
+    if find == False:
         return {f"roster_id: {roster_id} doesn't exist"}
     else:
         appended_data = jsonable_encoder(timegropup_data)
