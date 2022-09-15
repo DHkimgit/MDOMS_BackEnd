@@ -14,7 +14,8 @@ from app.server.database.roster_group import (
     add_permission,
     get_roster_member_groups,
     get_roster_member_group,
-    add_group_member
+    add_group_member,
+    append_member_status
 )
 router = APIRouter()
 
@@ -45,6 +46,11 @@ async def put_permission_id(id: str, appended_id: str):
     return result
 
 @router.put('/{group_id}/{member_servicenumber}')
-async def put_permission_id(group_id: str, member_servicenumber: str):
+async def put_group_member(group_id: str, member_servicenumber: str):
     result = await add_group_member(group_id, member_servicenumber)
+    return result
+
+@router.put('/{group_id}/{member_servicenumber}/{status}')
+async def put_member_status(group_id: str, member_servicenumber: str, status: str):
+    result = await append_member_status(group_id, member_servicenumber, status)
     return result

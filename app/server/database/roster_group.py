@@ -91,3 +91,25 @@ async def add_group_member(id: str, append_service_number: str):
             )
         else:
             return "No matching Servicenumber detected"
+
+
+async def append_member_status(id: str, member_servicenumber: str, status: str):
+    status = roster_group_collection.update_one(
+        {"_id": ObjectId(id), "member.$.service_number": member_servicenumber},
+        {"$set": {"member.$.name": status}}
+        )
+    print(status)
+    return "done"
+
+async def get_group_member(id: str):
+    result = []
+    roster_member_group = await roster_group_collection.find_one({"_id": ObjectId(id)})
+    if roster_member_group:
+        for i in range(len(roster_member_group['member'])):
+            result.append(
+                {
+                    "service_number": roster_member_group['member'][i]['service_number'],
+                    "name": roster_member_group['member'][i]['name'],
+                }
+            )
+    return result
