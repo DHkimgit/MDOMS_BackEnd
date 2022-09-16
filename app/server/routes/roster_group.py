@@ -15,7 +15,8 @@ from app.server.database.roster_group import (
     get_roster_member_groups,
     get_roster_member_group,
     add_group_member,
-    append_member_status
+    append_member_status,
+    get_group_members
 )
 router = APIRouter()
 
@@ -39,6 +40,11 @@ async def post_roster_member(grop_data: RosterGroupInputSchema = Body(...), crea
     appended_data["user_edit_permission"] = [create_user_id]
     database_append_response = await add_roster_member_group(appended_data)
     return database_append_response
+
+@router.get('/member/{group_id}')
+async def get_group_member(group_id: str):
+    results = await get_group_members(group_id)
+    return results
 
 @router.put('/{appended_id}')
 async def put_permission_id(id: str, appended_id: str):
