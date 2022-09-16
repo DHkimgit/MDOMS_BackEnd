@@ -143,11 +143,11 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     time_pointer = 0
 
     
-    time_group_data_pointer = []
     
+    list(prev_schedule_data['next_pointer'][i].values())[0]
     for i in range(len(prev_schedule_data['next_pointer'])):
         for j in range(len(membergroup)):
-            if membergroup[j]['name'] == prev_schedule_data['next_pointer'][i]['name']:
+            if membergroup[j]['name'] == list(prev_schedule_data['next_pointer'][i].values())[0]:
                 time_group_data_pointer.append(j)
     if prev_schedule_data:
         pointer = 1
@@ -163,7 +163,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
             if pointer == 0:
                 update_document = await schedule_collection.update_one(
                     {"roster_information_id": roster_id, "date": date},
-                    {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k]['name']}"}}}
+                    {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k].values()}"}}}
                 )
             else:
                 update_document = await schedule_collection.update_one(
