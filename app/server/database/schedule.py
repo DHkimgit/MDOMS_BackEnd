@@ -82,7 +82,10 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     prev_schedule_data = await schedule_collection.find_one(
         {"date" : prev_date, "create_user_id" : user_id, "roster_information_id" : roster_id}
     )
-    print(prev_schedule_data)
+    if prev_schedule_data:
+        pointer = 1
+    else:
+        pointer = 0
     append_schedule_document = await schedule_collection.insert_one({
         "create_user_id": user_id,
         "roster_information_id": roster_id,
@@ -102,6 +105,8 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                 )   
             else:
                 continue
+    else:
+        return "Roster member group not found in database"
 
     update_document = await schedule_collection.update_one(
         {"roster_information_id": roster_id, "date": date},
@@ -122,13 +127,21 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                 for j in range(len(data['roster_time_group'][i]['time'])):
                     time_data.append(data['roster_time_group'][i]['time'][j])
 
+    check_forward_backward = []
     if isWeekend:
         data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
         for i in range(len(data['roster_time_group'])):
             if 'weekend' in data['roster_time_group'][i]['apply_group']:
                 time_group.append(data['roster_time_group'][i]['time'])
+            if 'weekend' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'forward':
+                check_forward_backward.append(1)
+            elif 'weekend' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'backward':
+                check_forward_backward.append(-1)
+            else:
+                pass
         time_group.sort()
         for j in range(len(time_group)):
+            
             time_group_data.append(len(time_group[j]))
 
     else:
@@ -136,43 +149,71 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
         for i in range(len(data['roster_time_group'])):
             if 'weekday' in data['roster_time_group'][i]['apply_group']:
                 time_group.append(data['roster_time_group'][i]['time'])
+            if 'weekday' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'forward':
+                check_forward_backward.append(1)
+            elif 'weekday' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'backward':
+                check_forward_backward.append(-1)
+            else:
+                pass
         time_group.sort()
         for j in range(len(time_group)):
             time_group_data.append(len(time_group[j]))
     
+    print(check_forward_backward)
+    print(time_group)
+    print(time_group_data)
     time_pointer = 0
 
-    
-    
-    list(prev_schedule_data['next_pointer'][i].values())[0]
-    for i in range(len(prev_schedule_data['next_pointer'])):
-        for j in range(len(membergroup)):
-            if membergroup[j]['name'] == list(prev_schedule_data['next_pointer'][i].values())[0]:
-                time_group_data_pointer.append(j)
-    if prev_schedule_data:
-        pointer = 1
+    time_group_data_pointer = []
+    if pointer == 1:
+        for i in range(len(prev_schedule_data['next_pointer'])):
+            for j in range(len(membergroup)):
+                pointer_data = list(prev_schedule_data['next_pointer'][i].values())[0]
+                if membergroup[j]['name'] == pointer_data:
+                    time_group_data_pointer.append(j)
     else:
-        pointer = 0
-    
-    # [1, 5]
+        pass
+
+    reverse_membergroup = list(reversed(membergroup))
+    print(reverse_membergroup)
     for i in range(len(time_group_data)):
         j = time_group_data[i]
         user_pointer = 0
-        member_pointer = time_group_data_pointer[i]
-        for k in range(j):
-            if pointer == 0:
-                update_document = await schedule_collection.update_one(
-                    {"roster_information_id": roster_id, "date": date},
-                    {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k].values()}"}}}
-                )
-            else:
-                update_document = await schedule_collection.update_one(
-                    {"roster_information_id": roster_id, "date": date},
-                    {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k + member_pointer]['name']}"}}}
-                )
-            user_pointer += 1
+        
+        if pointer == 1:
+            member_pointer = time_group_data_pointer[i]
+        else:
+            pass
+
+        if check_forward_backward[i] == -1:
+            for k in range(j):
+                if pointer == 0:
+                    update_document = await schedule_collection.update_one(
+                        {"roster_information_id": roster_id, "date": date},
+                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{list(reverse_membergroup[k].values())[1]}"}}}
+                    )
+                else:
+                    update_document = await schedule_collection.update_one(
+                        {"roster_information_id": roster_id, "date": date},
+                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{reverse_membergroup[k + member_pointer]['name']}"}}}
+                    )
+                user_pointer += 1
+        else:
+            for k in range(j):
+                if pointer == 0:
+                    update_document = await schedule_collection.update_one(
+                        {"roster_information_id": roster_id, "date": date},
+                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{list(membergroup[k].values())[1]}"}}}
+                    )
+                else:
+                    update_document = await schedule_collection.update_one(
+                        {"roster_information_id": roster_id, "date": date},
+                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k + member_pointer]['name']}"}}}
+                    )
+                user_pointer += 1
         
         pointer_time = time_data[i][0] + time_data[i][1] + ':' +  time_data[i][3] + time_data[i][4] + ' ' + '-' + ' ' + time_data[i + j - 1][8] + time_data[i + j - 1][9] + ':' + time_data[i + j - 1][11] + time_data[i + j - 1][12]
+        
         if pointer==0:
             update_document = await schedule_collection.update_one(
                         {"roster_information_id": roster_id, "date": date},
@@ -183,24 +224,8 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"roster_information_id": roster_id, "date": date},
                         {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[user_pointer + member_pointer]['name']}"}}}
                     )
-        
 
         time_pointer += time_group_data[i]
 
 
     return "ok"
-# membergroup
-# time_data
-#   [
-#     "06:00 - 08:00",
-#     "08:00 - 10:00",
-#     "10:00 - 12:00",
-#     "12:00 - 14:00",
-#     "14:00 - 16:00",
-#     "18:00 - 18:00"
-#   ],
-#   [
-#     1,
-#     5
-#   ]
-    
