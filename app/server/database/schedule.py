@@ -141,7 +141,6 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                 pass
         time_group.sort()
         for j in range(len(time_group)):
-            
             time_group_data.append(len(time_group[j]))
 
     else:
@@ -159,9 +158,6 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
         for j in range(len(time_group)):
             time_group_data.append(len(time_group[j]))
     
-    print(check_forward_backward)
-    print(time_group)
-    print(time_group_data)
     time_pointer = 0
 
     time_group_data_pointer = []
@@ -174,14 +170,17 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     else:
         pass
 
+    print(time_group_data_pointer)
     reverse_membergroup = list(reversed(membergroup))
-    print(reverse_membergroup)
+    start_time_pointer = 0
     for i in range(len(time_group_data)):
         j = time_group_data[i]
         user_pointer = 0
         
-        if pointer == 1:
+        if pointer == 1 and check_forward_backward[i] == 1:
             member_pointer = time_group_data_pointer[i]
+        elif pointer == 1 and check_forward_backward[i] == -1:
+            member_pointer = len(membergroup) - time_group_data_pointer[i] - 1
         else:
             pass
 
@@ -206,25 +205,38 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{list(membergroup[k].values())[1]}"}}}
                     )
                 else:
+                    member_index = k + member_pointer
+                    if member_index >= len(membergroup):
+                        member_index -= len(membergroup)
                     update_document = await schedule_collection.update_one(
                         {"roster_information_id": roster_id, "date": date},
-                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[k + member_pointer]['name']}"}}}
+                        {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[member_index]['name']}"}}}
                     )
                 user_pointer += 1
-        
-        pointer_time = time_data[i][0] + time_data[i][1] + ':' +  time_data[i][3] + time_data[i][4] + ' ' + '-' + ' ' + time_data[i + j - 1][8] + time_data[i + j - 1][9] + ':' + time_data[i + j - 1][11] + time_data[i + j - 1][12]
-        
-        if pointer==0:
-            update_document = await schedule_collection.update_one(
-                        {"roster_information_id": roster_id, "date": date},
-                        {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[user_pointer]['name']}"}}}
-                    )
+        pointer_time = time_data[start_time_pointer][0] + time_data[start_time_pointer][1] + ':' +  time_data[start_time_pointer][3] + time_data[start_time_pointer][4] + ' ' + '-' + ' ' + time_data[start_time_pointer + j - 1][8] + time_data[start_time_pointer + j - 1][9] + ':' + time_data[start_time_pointer + j - 1][11] + time_data[start_time_pointer + j - 1][12]
+        start_time_pointer += j
+        if check_forward_backward[i] == -1:
+            if pointer==0:
+                update_document = await schedule_collection.update_one(
+                            {"roster_information_id": roster_id, "date": date},
+                            {"$push": {"next_pointer" : {f"{pointer_time}": f"{reverse_membergroup[user_pointer]['name']}"}}}
+                        )
+            else:
+                update_document = await schedule_collection.update_one(
+                            {"roster_information_id": roster_id, "date": date},
+                            {"$push": {"next_pointer" : {f"{pointer_time}": f"{reverse_membergroup[user_pointer + member_pointer]['name']}"}}}
+                        )
         else:
-            update_document = await schedule_collection.update_one(
-                        {"roster_information_id": roster_id, "date": date},
-                        {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[user_pointer + member_pointer]['name']}"}}}
-                    )
-
+            if pointer==0:
+                update_document = await schedule_collection.update_one(
+                            {"roster_information_id": roster_id, "date": date},
+                            {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[user_pointer]['name']}"}}}
+                        )
+            else:
+                update_document = await schedule_collection.update_one(
+                            {"roster_information_id": roster_id, "date": date},
+                            {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[user_pointer + member_pointer]['name']}"}}}
+                        )
         time_pointer += time_group_data[i]
 
 
