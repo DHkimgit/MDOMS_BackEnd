@@ -79,13 +79,14 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     isWeekend = date_parser.is_weekend(date)
     roster_information = await roster_collection.find_one({"_id": ObjectId(roster_id)})
     roster_name = roster_information['roster_name']
-    prev_schedule_data = await schedule_collection.find_one(
-        {"date" : prev_date, "create_user_id" : user_id, "roster_information_id" : roster_id}
-    )
-    if prev_schedule_data:
-        pointer = 1
-    else:
-        pointer = 0
+    # prev_schedule_data = await schedule_collection.find_one(
+    #     {"date" : prev_date, "create_user_id" : user_id, "roster_information_id" : roster_id}
+    # )
+    # if prev_schedule_data:
+    #     pointer = 1
+    # else:
+    #     pointer = 0
+    prev_schedule_data, pointer = await check_prev_date_schedule(prev_date, user_id, roster_id)
     append_schedule_document = await schedule_collection.insert_one({
         "create_user_id": user_id,
         "roster_information_id": roster_id,
@@ -128,7 +129,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                     time_data.append(data['roster_time_group'][i]['time'][j])
 
     check_forward_backward = []
-    print(len(data['roster_time_group']))
+
     if isWeekend:
         data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
         for i in range(len(data['roster_time_group'])):
@@ -147,18 +148,22 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     else:
         data = await roster_collection.find_one({"_id": ObjectId(roster_id)})
         for i in range(len(data['roster_time_group'])):
-            if 'weekday' in data['roster_time_group'][i]['apply_group']:
-                time_group.append(data['roster_time_group'][i]['time'])
+            # if 'weekday' in data['roster_time_group'][i]['apply_group']:
+            #     time_group.append(data['roster_time_group'][i]['time'])
+            # else:
+            #     pass
             if 'weekday' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'forward':
+                time_group.append(data['roster_time_group'][i]['time'])
                 check_forward_backward.append(1)
             elif 'weekday' in data['roster_time_group'][i]['apply_group'] and data['roster_time_group'][i]['order'] == 'backward':
+                time_group.append(data['roster_time_group'][i]['time'])
                 check_forward_backward.append(-1)
             else:
                 pass
         time_group.sort()
         for j in range(len(time_group)):
             time_group_data.append(len(time_group[j]))
-    
+
     time_pointer = 0
 
     time_group_data_pointer = []
@@ -171,20 +176,19 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
     else:
         pass
 
-    print(time_group_data)
+
     reverse_membergroup = list(reversed(membergroup))
     start_time_pointer = 0
     for i in range(len(time_group_data)):
         j = time_group_data[i]
         user_pointer = 0
-        
         if pointer == 1 and check_forward_backward[i] == 1:
             member_pointer = time_group_data_pointer[i]
         elif pointer == 1 and check_forward_backward[i] == -1:
             member_pointer = len(membergroup) - time_group_data_pointer[i] - 1
         else:
             pass
-        print(check_forward_backward)
+
         if check_forward_backward[i] == -1:
             for k in range(j):
                 if pointer == 0:
@@ -192,6 +196,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"roster_information_id": roster_id, "date": date},
                         {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{list(reverse_membergroup[k].values())[1]}"}}}
                     )
+                    append_user_schedule = await append_student_schedule_data(roster_id, list(reverse_membergroup[k].values())[0], time_data[k + time_pointer], date)
                 else:
                     member_index = k + member_pointer
                     if member_index >= len(membergroup):
@@ -200,6 +205,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"roster_information_id": roster_id, "date": date},
                         {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{reverse_membergroup[member_index]['name']}"}}}
                     )
+                    append_user_schedule = await append_student_schedule_data(roster_id, reverse_membergroup[member_index]['service_number'], time_data[k + time_pointer], date)
                 user_pointer += 1
         else:
             for k in range(j):
@@ -208,6 +214,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"roster_information_id": roster_id, "date": date},
                         {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{list(membergroup[k].values())[1]}"}}}
                     )
+                    append_user_schedule = await append_student_schedule_data(roster_id, list(membergroup[k].values())[0], time_data[k + time_pointer], date)
                 else:
                     member_index = k + member_pointer
                     if member_index >= len(membergroup):
@@ -216,6 +223,7 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                         {"roster_information_id": roster_id, "date": date},
                         {"$push": {"schedule" : {f"{time_data[k + time_pointer]}": f"{membergroup[member_index]['name']}"}}}
                     )
+                    append_user_schedule = await append_student_schedule_data(roster_id, membergroup[member_index]['service_number'], time_data[k + time_pointer], date)
                 user_pointer += 1
         pointer_time = time_data[start_time_pointer][0] + time_data[start_time_pointer][1] + ':' +  time_data[start_time_pointer][3] + time_data[start_time_pointer][4] + ' ' + '-' + ' ' + time_data[start_time_pointer + j - 1][8] + time_data[start_time_pointer + j - 1][9] + ':' + time_data[start_time_pointer + j - 1][11] + time_data[start_time_pointer + j - 1][12]
         
@@ -250,6 +258,62 @@ async def make_daily_schedule(user_id: str, roster_id: str, roster_group_id: str
                             {"$push": {"next_pointer" : {f"{pointer_time}": f"{membergroup[next_pointer_index]['name']}"}}}
                         )
         time_pointer += time_group_data[i]
-
+    
 
     return "ok"
+
+async def append_student_schedule_data(roster_id: str, servicenumber: str, time: str, date: str):
+    roster_information = await roster_collection.find_one(
+        {"_id" : ObjectId(roster_id)}
+    )
+    if roster_information:
+        roster_name = roster_information['roster_name']
+        rosterID = roster_information['roster_id']
+        week = date_parser.day(date)
+    else:
+        raise Exception('roster information not found')
+
+    check_already_exist_schedule = await user_collection.find_one(
+        {"servicenumber": servicenumber, "schedule.roster_id" : rosterID, "schedule.date" : date}
+    )
+    if check_already_exist_schedule:
+        schedule = await user_collection.update_one(
+            {"servicenumber": servicenumber, "schedule.roster_id" : rosterID, "schedule.date" : date},
+            {"$push" : {"schedule.$.time" : time}}
+        )
+    
+    else:
+        schedule = await user_collection.update_one(
+            {"servicenumber": servicenumber},
+            {"$push": {"schedule" : {
+                "roster_id" : rosterID,
+                "roster_name" : roster_name,
+                "date" : date,
+                "week" : week,
+                "time" : [time]
+        }}}
+    )
+    return True
+
+# db.user.updateMany(
+#   {},
+#   {$unset : {'schedule' : true}}
+# )
+
+# database cleaning
+async def delete_user_schedule_data():
+    clening_schedule = await user_collection.update_many(
+        {},
+        {"$unset" : {"schedule" : True}}
+    )
+    return True
+
+async def check_prev_date_schedule(prev_date: str, user_id: str, roster_information_id: str):
+    prev_schedule_data = await schedule_collection.find_one(
+        {"date" : prev_date, "create_user_id" : user_id, "roster_information_id" : roster_information_id}
+    )
+    dummy = []
+    if prev_schedule_data:
+        return prev_schedule_data, 1
+    else:
+        return dummy, 0

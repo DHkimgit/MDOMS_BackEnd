@@ -69,7 +69,6 @@ async def add_permission(id: str, append_id: str):
             {"$push" : {"user_edit_permission" : ObjectId(append_id)}}
         )
         result = await roster_group_collection.find_one({"_id": ObjectId(id)})
-        print(result)
         return add_roster_member_group_response_model(result)
     else:
         return "Error ㅠㅠ"
