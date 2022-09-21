@@ -2,13 +2,9 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class FourmSchema(BaseModel):
-    writer_name: str = Field(...)
-    writer_service_numer: str = Field(...)
     category: str = Field(...)
     title: str = Field(...)
     content: str = Field(...)
-    write_date: str = Field(...)
-    write_time: str = Field(...)
 
     class config():
         schema_extra = {
